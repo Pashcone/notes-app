@@ -1,5 +1,4 @@
 import express from "express";
-import  cors from 'cors'
 import process from "process";
 
 const app = express();
@@ -26,7 +25,6 @@ let notes = [
 
 
 app.use(express.json());
-app.use(cors())
 
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>");
