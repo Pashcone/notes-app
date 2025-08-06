@@ -3,6 +3,7 @@ import  cors from 'cors'
 import process from "process";
 
 const app = express();
+app.use(express.static('dist'))
 
 let notes = [
   {
