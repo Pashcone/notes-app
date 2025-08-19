@@ -21,6 +21,7 @@ const App = () => {
   useEffect(() => {
     noteService.getAll().then((initialNotes) => {
       setNotes(initialNotes);
+      console.log("Fetched notes:", initialNotes);
     }).catch((error) => {
       setErrorMessage("Failed to fetch notes from server", error)
     })
@@ -60,6 +61,25 @@ const App = () => {
     });
   };
 
+  const NotesList = () => {
+    console.log(notes.length)
+    if(notes.length === 0) {
+      return <p>No notes available</p>;
+    }
+    return (
+      <ul> 
+      {notesToShow.map((note) => (
+      <Note
+        key={note.id}
+        note={note}
+        toggleImportance={() => toggleImportanceOf(note.id)}
+      />
+      
+    ))}
+    </ul>
+    )
+  }
+
   return (
     <div>
       <h1>Notes</h1>
@@ -69,15 +89,7 @@ const App = () => {
           show {showAll ? "important" : "all"}
         </button>
       </div>
-      <ul>
-        {notesToShow.map((note) => (
-          <Note
-            key={note.id}
-            note={note}
-            toggleImportance={() => toggleImportanceOf(note.id)}
-          />
-        ))}
-      </ul>
+      <NotesList/>
       <form onSubmit={addNote}>
         <input value={newNote} onChange={handleNoteChange} />
         <button type="submit">save</button>

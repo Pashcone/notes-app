@@ -1,8 +1,39 @@
+
 import express from "express";
 import process from "process";
+import mongoose from "mongoose";
+import Note from './models/note.js';;
+
+const url = process.env.MONGODB_URI || 'hehe';
+console.log(url)
+mongoose.set("strictQuery", false);
+mongoose.connect(url);
+
+mongoose
+  .connect(url, )
+  .then((result) => {
+    console.log("connected to MongoDB");
+  })
+  .catch((error) => {
+    console.log("error connecting to MongoDB:", error.message);
+  });
+
+const noteSchema = new mongoose.Schema({
+  content: String,
+  important: Boolean,
+});
+
+noteSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
 
 const app = express();
-app.use(express.static('dist'))
+app.use(express.static("dist"));
+const PORT = process.env.PORT
 
 let notes = [
   {
@@ -22,8 +53,6 @@ let notes = [
   },
 ];
 
-
-
 app.use(express.json());
 
 app.get("/", (request, response) => {
@@ -31,7 +60,9 @@ app.get("/", (request, response) => {
 });
 
 app.get("/api/notes", (request, response) => {
-  response.json(notes);
+  Note.find({}).then((notes) => {
+    response.json(notes);
+  });
 });
 
 app.get("/api/notes/:id", (request, response) => {
@@ -78,7 +109,6 @@ app.delete("/api/notes/:id", (request, response) => {
   response.status(204).end();
 });
 
-
 app.put("/api/notes/:id", (request, response) => {
   const id = request.params.id;
   const body = request.body;
@@ -91,7 +121,7 @@ app.put("/api/notes/:id", (request, response) => {
   const updatedNote = {
     ...notes[noteIndex],
     content: body.content,
-    important: body.important
+    important: body.important,
   };
 
   notes[noteIndex] = updatedNote;
@@ -99,7 +129,5 @@ app.put("/api/notes/:id", (request, response) => {
   response.json(updatedNote);
 });
 
-
-const PORT = process.env.PORT || 3001
 app.listen(PORT);
 console.log(`Server running on port ${PORT}`);
